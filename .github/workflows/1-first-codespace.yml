@@ -56,10 +56,32 @@ jobs:
 
       # Verify the learner added the file contents
       - name: Check workflow contents, jobs
+        id: check-index
         uses: skills/action-check-file@v1
         with:
           file: "index.html"
           search: "Hello from the codespace"
+
+      # Provide user-friendly error message if check fails
+      - name: User-friendly error message
+        if: failure() && steps.check-index.outcome == 'failure'
+        run: |
+          echo "::error::Oops! It looks like your index.html file doesn't contain the expected content."
+          cat << 'EOF'
+
+          Please make sure your index.html includes the following line:
+
+            <h1>Hello from the codespace!</h1>
+
+          Tips:
+            1. Open the index.html file in VS Code
+            2. Replace the existing <h1> content with 'Hello from the codespace!'
+            3. Save the file
+            4. Commit and push your changes
+
+          For more help, check the instructions in Step 1 of the README.
+          EOF
+          exit 1
 
       # In README.md, switch step 1 for step 2.
       - name: Update to step 2

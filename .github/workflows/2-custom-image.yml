@@ -56,10 +56,34 @@ jobs:
 
       # Verify the devcontainer.json has an image.
       - name: Check devcontainer.json
+        id: check-devcontainer-image
         uses: skills/action-check-file@v1
         with:
           file: ".devcontainer/devcontainer.json"
           search: "mcr\\.microsoft\\.com/vscode/devcontainers/universal:latest"
+
+      # Provide user-friendly error message if check fails
+      - name: User-friendly error message
+        if: failure() && steps.check-devcontainer-image.outcome == 'failure'
+        run: |
+          echo "::error::Oops! It looks like your devcontainer.json file is missing or has incorrect content."
+          cat << 'EOF'
+
+          Please make sure you have:
+            1. Created the file at: .devcontainer/devcontainer.json
+            2. Added the correct image configuration
+
+          Your devcontainer.json should include:
+            "image": "mcr.microsoft.com/vscode/devcontainers/universal:latest"
+
+          Tips:
+            - Make sure the folder is named '.devcontainer' (with a dot at the beginning)
+            - Make sure the file is named 'devcontainer.json' (all lowercase)
+            - Check for any typos in the image URL
+
+          For more help, check the instructions in Step 2 of the README.
+          EOF
+          exit 1
 
       # In README.md, switch step 2 for step 3.
       - name: Update to step 3
