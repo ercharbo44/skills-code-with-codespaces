@@ -58,10 +58,37 @@ jobs:
 
       # Verify the setup.sh added the file contents.
       - name: Check workflow contents, jobs
+        id: check-setup
         uses: skills/action-check-file@v1
         with:
           file: "setup.sh"
           search: "install sl"
+
+      # Provide user-friendly error message if check fails
+      - name: User-friendly error message
+        if: failure() && steps.check-setup.outcome == 'failure'
+        run: |
+          echo "::error::Oops! It looks like your setup.sh file is missing or has incorrect content."
+          echo ""
+          echo "Please make sure you have:"
+          echo "  1. Created the file named 'setup.sh' in the root of your repository"
+          echo "  2. Added the correct content to install the 'sl' command"
+          echo ""
+          echo "Your setup.sh should include:"
+          echo "  sudo apt-get install sl"
+          echo ""
+          echo "Full example:"
+          echo "  #!/bin/bash"
+          echo "  sudo apt-get update"
+          echo "  sudo apt-get install sl"
+          echo '  echo "export PATH=\$PATH:/usr/games" >> ~/.bashrc'
+          echo ""
+          echo "Tips:"
+          echo "  - Make sure to create the file from within your codespace"
+          echo "  - Commit and push your changes"
+          echo ""
+          echo "For more help, check the instructions in Step 4 of the README."
+          exit 1
 
       # In README.md, switch step 4 for step X.
       - name: Update to step X

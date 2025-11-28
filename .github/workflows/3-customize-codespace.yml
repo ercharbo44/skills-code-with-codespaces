@@ -56,10 +56,30 @@ jobs:
 
       # Verify the postCreateCommand was added.
       - name: Check for postCreateCommand
+        id: check-postcreate
         uses: skills/action-check-file@v1
         with:
           file: ".devcontainer/devcontainer.json"
           search: "postCreateCommand"
+
+      # Provide user-friendly error message if check fails
+      - name: User-friendly error message
+        if: failure() && steps.check-postcreate.outcome == 'failure'
+        run: |
+          echo "::error::Oops! It looks like your devcontainer.json is missing the postCreateCommand."
+          echo ""
+          echo "Please make sure you have added a postCreateCommand to your devcontainer.json file."
+          echo ""
+          echo "Example:"
+          echo '  "postCreateCommand": "echo '\''# Writing code upon codespace creation!'\''  >> codespace.md"'
+          echo ""
+          echo "Tips:"
+          echo "  - Add the postCreateCommand before the last closing brace '}'"
+          echo "  - Don't forget to add a comma after the previous property"
+          echo "  - Make sure to save and commit your changes"
+          echo ""
+          echo "For more help, check the instructions in Step 3 of the README."
+          exit 1
 
       # In README.md, switch step 3 for step 4.
       - name: Update to step 4
